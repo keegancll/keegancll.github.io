@@ -77,35 +77,35 @@
 				format: "json"
 			},)
 			.done(function( data ) {
-				localStorage.setItem("photoIDs", JSON.stringify(data));
-			});
+				//localStorage.setItem("photoIDs", JSON.stringify(data));
+				//var photoIDs = JSON.parse(localStorage.getItem("photoIDs"));
 				
-			var photoIDs = JSON.parse(localStorage.getItem("photoIDs"));
-			
-			$.each( photoIDs.photos.photo, function(i) {
-				
-				var flickrImage = "https://api.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=" + appKey + "&photo_id=" + this.id + "&format=json&nojsoncallback=1";
-				var pageSize = 11;
-				var imgTitle = this.title;
-				
-				console.log(flickrImage);
-				$.getJSON( flickrImage, {
-					format: "json"
-				}).done(function(data) {
-					var imgSrc = $.grep(data.sizes.size, function(n, i){return n.label === "Medium";})[0].source;
+				$.each( data.photos.photo, function(i) {
 					
-					$( "<img>" ).attr({ "src":imgSrc, id:i }).appendTo( "#feed" );					
-				}).then(function(){				
-					$( "img#" + i).after($( "<label>").text(imgTitle));
-					$( "img#" + i).attr({"title":imgTitle, "alt":imgTitle});
+					var flickrImage = "https://api.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=" + appKey + "&photo_id=" + this.id + "&format=json&nojsoncallback=1";
+					var pageSize = 11;
+					var imgTitle = this.title;
+					
+					console.log(flickrImage);
+					$.getJSON( flickrImage, {
+						format: "json"
+					}).done(function(data) {
+						var imgSrc = $.grep(data.sizes.size, function(n, i){return n.label === "Medium";})[0].source;
+						
+						$( "<img>" ).attr({ "src":imgSrc, id:i }).appendTo( "#feed" );					
+					}).then(function(){				
+						$( "img#" + i).after($( "<label>").text(imgTitle));
+						$( "img#" + i).attr({"title":imgTitle, "alt":imgTitle});
+					});
+					
+					//$( "<img>" ).attr( "src", "https://farm" + this.farm + ".staticflickr.com/" + this.server + "/" + this.id + "_" + appSecret + ".jpg" ).appendTo( "#feed" );				
+									
+					if ( i === pageSize ) {
+						return false;
+					}
 				});
-				
-				//$( "<img>" ).attr( "src", "https://farm" + this.farm + ".staticflickr.com/" + this.server + "/" + this.id + "_" + appSecret + ".jpg" ).appendTo( "#feed" );				
-								
-				if ( i === pageSize ) {
-					return false;
-				}
 			});
+				
 		});
 		
 	</script>
