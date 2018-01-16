@@ -1,1 +1,158 @@
-<h1>HELLO WORLD</h1>
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="description" content="NASA Flickr">
+    <meta name="keywords" content="NASA, flickr">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->	
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <style>
+        .row.content {height: 1500px}
+        
+        .sidenav {
+          background-color: #f1f1f1;
+          height: 100%;
+        }
+		
+        footer {
+          background-color: #555;
+          color: white;
+          padding: 15px;
+        }
+		
+		#feed {padding:0 20px;}
+		#feed img {margin:1em;width:80%;}
+		#feed label {margin:0 1em 2em;width:90%;}
+        
+        @media screen and (max-width: 767px) {
+          .sidenav {
+            height: auto;
+            padding: 15px;
+          }
+          .row.content {height: auto;} 
+        }
+		
+    </style>
+    <title>NASA Flickr Feed	</title>
+	
+    <!--[if IE]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
+	
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script type="text/javascript">		
+		var flickrAPI;
+		
+		//search images
+		flickrAPI = "https://api.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=566491b2dc30b4916c37ac93561cc68f&photo_id=38606450645&format=json&nojsoncallback=1";
+		
+		
+		//search filter
+		flickrAPI = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=566491b2dc30b4916c37ac93561cc68f&user_id=24662369@N07&format=json&nojsoncallback=1&text=eso58049+hubble";
+		
+		//search account
+		flickrAPI ="https://api.flickr.com/services/rest/?method=flickr.people.getPublicPhotos&api_key=566491b2dc30b4916c37ac93561cc68f&user_id=24662369@N07&format=json&nojsoncallback=1";
+		
+				
+		var appKey = "566491b2dc30b4916c37ac93561cc68f";
+		var appSecret = "2ab36fc89fde61b2";
+		appSecret = "5f64f43c8d";
+		var appUser = "24662369@N07";
+		
+		$( document ).ready(function() {
+			
+			console.log(flickrAPI);
+			$.getJSON(flickrAPI, {
+				//tags: "eso58049",
+				//tagmode: "",
+				page: 1,
+				format: "json"
+			},)
+			.done(function( data ) {
+				localStorage.setItem("photoIDs", JSON.stringify(data));
+			});
+				
+			var photoIDs = JSON.parse(localStorage.getItem("photoIDs"));
+			
+			$.each( photoIDs.photos.photo, function(i) {
+				
+				var flickrImage = "https://api.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=" + appKey + "&photo_id=" + this.id + "&format=json&nojsoncallback=1";
+				var pageSize = 11;
+				var imgTitle = this.title;
+				
+				console.log(flickrImage);
+				$.getJSON( flickrImage, {
+					format: "json"
+				}).done(function(data) {
+					var imgSrc = $.grep(data.sizes.size, function(n, i){return n.label === "Medium";})[0].source;
+					
+					$( "<img>" ).attr({ "src":imgSrc, id:i }).appendTo( "#feed" );					
+				}).then(function(){				
+					$( "img#" + i).after($( "<label>").text(imgTitle));
+					$( "img#" + i).attr({"title":imgTitle, "alt":imgTitle});
+				});
+				
+				//$( "<img>" ).attr( "src", "https://farm" + this.farm + ".staticflickr.com/" + this.server + "/" + this.id + "_" + appSecret + ".jpg" ).appendTo( "#feed" );				
+								
+				if ( i === pageSize ) {
+					return false;
+				}
+			});
+		});
+		
+	</script>
+  </head>
+  <body>
+  
+    <div class="container-fluid">
+      <div class="row content">
+        <div class="col-sm-3 sidenav">
+          <h1>NASA Flickr Feed</h1>
+          <ul class="nav nav-pills nav-stacked">
+            <li class="active"><a href="#section1">Latest Photos</a></li>
+			<li><a href="#section2">Most Views</a></li>
+            <li><a href="#section3">Most Favourites</a></li>
+            <li><a href="#section4">Most Comments</a></li>
+          </ul><br>
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search Photos (water, animal)">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="button">
+                <span class="glyphicon glyphicon-search"></span>
+              </button>
+            </span>
+          </div>
+        </div>
+    
+        <div class="col-sm-9">
+		<p>
+		 
+		<div class="row" id="feed">
+		
+		
+		</div>
+		<ul class="pagination">
+		  <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+		  <li class="page-item"><a class="page-link" href="#">1</a></li>
+		  <li class="page-item"><a class="page-link" href="#">2</a></li>
+		  <li class="page-item"><a class="page-link" href="#">3</a></li>
+		  <li class="page-item"><a class="page-link" href="#">Next</a></li>
+		</ul>
+ 		  
+        </div>
+      </div>
+    </div>
+
+    <footer class="container-fluid">
+      <p></p>
+    </footer>
+  </body>
+</html>
